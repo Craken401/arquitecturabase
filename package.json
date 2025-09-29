@@ -1,0 +1,28 @@
+{
+  "name": "arquitecturabase",
+  "version": "1.0.0",
+  "description": "Proyecto Base de la asignatura Procesos de Ingeniería del Software",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Craken401/arquitecturabase.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Craken401/arquitecturabase/issues"
+  },
+  "homepage": "https://github.com/Craken401/arquitecturabase#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jasmine": "^5.11.0",
+    "supertest": "^7.1.4"
+  }
+}
