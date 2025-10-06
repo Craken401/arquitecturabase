@@ -14,7 +14,7 @@ Key facts an agent needs to be immediately productive:
   - `GET /obtenerUsuarios` → map/dictionary of users, e.g. `{ "alice": {"nick":"alice"} }`.
   - `GET /usuarioActivo/:nick` → `{ "nick": "alice", "activo": true|false }`.
   - `GET /numeroUsuarios` → `{ "num": 3 }`.
-  - `GET /eliminarUsuario/:nick` → `{ "nick": "alice" }` or `{ "nick": -1 }`.
+  - `DELETE /eliminarUsuario/:nick` → `{ "ok": true|false }`.
 
 Note: use the `-1` sentinel exactly for failure cases to remain compatible with existing client and tests.
 
