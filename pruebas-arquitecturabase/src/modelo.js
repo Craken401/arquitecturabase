@@ -29,7 +29,3 @@ function Sistema() {
     return Object.keys(this.usuarios).length;
   };
 }
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Sistema, Usuario };
-}

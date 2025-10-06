@@ -1,103 +1,111 @@
 const path = require('node:path');
 
-const modeloPath = path.resolve(__dirname, '..', 'cliente', 'modelo.js');
+const modeloPath = path.resolve(__dirname, '..', 'servidor', 'modelo.js');
 
-const cargarModelo = () => {
+const cargarSistema = () => {
   delete require.cache[modeloPath];
-  return require(modeloPath);
+  const modulo = require(modeloPath);
+  return {
+    Sistema: modulo.Sistema,
+    instancia: new modulo.Sistema(),
+  };
 };
 
 describe('Sistema de usuarios (modelo)', () => {
-  let modelo;
+  let sistema;
 
   beforeEach(() => {
-    modelo = cargarModelo();
+    const contexto = cargarSistema();
+    sistema = contexto.instancia;
   });
 
   describe('agregarUsuario', () => {
     it('crea un nuevo usuario con el nick indicado', () => {
-      const usuario = modelo.agregarUsuario('alice');
+      const respuesta = sistema.agregarUsuario('alice');
 
-      expect(usuario).toEqual(jasmine.any(modelo.Usuario));
-      expect(usuario.nick).toBe('alice');
-      expect(modelo.numeroUsuarios()).toBe(1);
+      expect(respuesta).toEqual({ nick: 'alice' });
+      expect(sistema.numeroUsuarios().num).toBe(1);
     });
 
     it('normaliza el nick eliminando espacios y evita duplicados', () => {
-      const primerUsuario = modelo.agregarUsuario(' alice ');
-      const segundoUsuario = modelo.agregarUsuario('alice');
+      const primerIntento = sistema.agregarUsuario(' alice ');
+      const duplicado = sistema.agregarUsuario('alice');
 
-      expect(segundoUsuario).toBe(primerUsuario);
-      expect(modelo.numeroUsuarios()).toBe(1);
+      expect(primerIntento.nick).toBe('alice');
+      expect(duplicado.nick).toBe(-1);
+      expect(sistema.numeroUsuarios().num).toBe(1);
     });
 
-    it('lanza un error si el nick es vacío', () => {
-      expect(() => modelo.agregarUsuario('')).toThrowError();
-      expect(() => modelo.agregarUsuario('   ')).toThrowError();
+    it('rechaza nicks vacíos devolviendo -1', () => {
+      const respuesta = sistema.agregarUsuario('   ');
+
+      expect(respuesta.nick).toBe(-1);
+      expect(sistema.numeroUsuarios().num).toBe(0);
     });
   });
 
   describe('obtenerUsuarios', () => {
-    it('devuelve una lista con los usuarios agregados', () => {
-      modelo.agregarUsuario('alice');
-      modelo.agregarUsuario('bob');
+    it('devuelve un diccionario con los usuarios agregados', () => {
+      sistema.agregarUsuario('alice');
+      sistema.agregarUsuario('bob');
 
-      const usuarios = modelo.obtenerUsuarios();
+      const usuarios = sistema.obtenerUsuarios();
 
-      expect(usuarios.length).toBe(2);
-      const nicks = usuarios.map((u) => u.nick);
-      expect(nicks).toContain('alice');
-      expect(nicks).toContain('bob');
+      expect(Object.keys(usuarios)).toEqual(jasmine.arrayContaining(['alice', 'bob']));
+      expect(usuarios.alice.nick).toBe('alice');
     });
 
-    it('devuelve una nueva lista para evitar mutaciones externas', () => {
-      modelo.agregarUsuario('alice');
+    it('devuelve siempre el mismo contenedor de usuarios', () => {
+      const usuariosAntes = sistema.obtenerUsuarios();
+      usuariosAntes.prueba = { nick: 'temporal' };
 
-      const usuarios = modelo.obtenerUsuarios();
-      usuarios.pop();
+      const usuariosDespues = sistema.obtenerUsuarios();
 
-      expect(modelo.numeroUsuarios()).toBe(1);
+      expect(usuariosDespues.prueba.nick).toBe('temporal');
+      delete usuariosDespues.prueba;
     });
   });
 
   describe('usuarioActivo', () => {
     it('indica verdadero cuando el usuario existe', () => {
-      modelo.agregarUsuario('alice');
+      sistema.agregarUsuario('alice');
 
-      expect(modelo.usuarioActivo('alice')).toBeTrue();
+      const respuesta = sistema.usuarioActivo('alice');
+      expect(respuesta).toEqual({ nick: 'alice', activo: true });
     });
 
     it('indica falso cuando el usuario no existe', () => {
-      expect(modelo.usuarioActivo('inexistente')).toBeFalse();
+      const respuesta = sistema.usuarioActivo('inexistente');
+      expect(respuesta).toEqual({ nick: 'inexistente', activo: false });
     });
   });
 
   describe('eliminarUsuario', () => {
-    it('elimina usuarios existentes y devuelve verdadero', () => {
-      modelo.agregarUsuario('alice');
+    it('elimina usuarios existentes devolviendo el nick', () => {
+      sistema.agregarUsuario('alice');
 
-      const resultado = modelo.eliminarUsuario('alice');
+      const resultado = sistema.eliminarUsuario('alice');
 
-      expect(resultado).toBeTrue();
-      expect(modelo.numeroUsuarios()).toBe(0);
+      expect(resultado).toEqual({ nick: 'alice' });
+      expect(sistema.numeroUsuarios().num).toBe(0);
     });
 
-    it('devuelve falso cuando el usuario no existe', () => {
-      const resultado = modelo.eliminarUsuario('inexistente');
+    it('devuelve -1 cuando el usuario no existe', () => {
+      const resultado = sistema.eliminarUsuario('inexistente');
 
-      expect(resultado).toBeFalse();
+      expect(resultado.nick).toBe(-1);
     });
   });
 
   describe('numeroUsuarios', () => {
     it('representa la cantidad actual de usuarios', () => {
-      expect(modelo.numeroUsuarios()).toBe(0);
-      modelo.agregarUsuario('alice');
-      expect(modelo.numeroUsuarios()).toBe(1);
-      modelo.agregarUsuario('bob');
-      expect(modelo.numeroUsuarios()).toBe(2);
-      modelo.eliminarUsuario('alice');
-      expect(modelo.numeroUsuarios()).toBe(1);
+      expect(sistema.numeroUsuarios()).toEqual({ num: 0 });
+      sistema.agregarUsuario('alice');
+      expect(sistema.numeroUsuarios()).toEqual({ num: 1 });
+      sistema.agregarUsuario('bob');
+      expect(sistema.numeroUsuarios()).toEqual({ num: 2 });
+      sistema.eliminarUsuario('alice');
+      expect(sistema.numeroUsuarios()).toEqual({ num: 1 });
     });
   });
 });

@@ -1,7 +1,7 @@
 const path = require('node:path');
 const request = require('supertest');
 
-const modeloPath = path.resolve(__dirname, '..', 'cliente', 'modelo.js');
+const modeloPath = path.resolve(__dirname, '..', 'servidor', 'modelo.js');
 const servidorPath = path.resolve(__dirname, '..', 'index.js');
 
 const cargarAplicacion = () => {
@@ -29,20 +29,19 @@ describe('API REST de usuarios', () => {
   it('permite agregar usuarios y obtener el listado', async () => {
     let respuesta = await request(app).get('/obtenerUsuarios');
     expect(respuesta.status).toBe(200);
-    expect(respuesta.body.usuarios).toEqual([]);
+    expect(respuesta.body).toEqual({});
 
     respuesta = await request(app).get('/agregarUsuario/alice');
     expect(respuesta.status).toBe(200);
-    expect(respuesta.body.usuario.nick).toBe('alice');
+    expect(respuesta.body.nick).toBe('alice');
 
     respuesta = await request(app).get('/agregarUsuario/bob');
     expect(respuesta.status).toBe(200);
 
     respuesta = await request(app).get('/obtenerUsuarios');
     expect(respuesta.status).toBe(200);
-    const nicks = respuesta.body.usuarios.map((u) => u.nick);
-    expect(nicks).toContain('alice');
-    expect(nicks).toContain('bob');
+    expect(respuesta.body.alice.nick).toBe('alice');
+    expect(respuesta.body.bob.nick).toBe('bob');
   });
 
   it('no agrega usuarios duplicados', async () => {
@@ -51,18 +50,17 @@ describe('API REST de usuarios', () => {
 
     expect(primeraRespuesta.status).toBe(200);
     expect(segundaRespuesta.status).toBe(200);
-    expect(segundaRespuesta.body.usuario.nick).toBe('alice');
+    expect(segundaRespuesta.body.nick).toBe(-1);
 
     const respuestaNumero = await request(app).get('/numeroUsuarios');
-    expect(respuestaNumero.body.total).toBe(1);
+    expect(respuestaNumero.body.num).toBe(1);
   });
 
   it('valida el nick del usuario en la API', async () => {
     const respuesta = await request(app).get('/agregarUsuario/%20%20');
 
-    expect(respuesta.status).toBe(400);
-    expect(respuesta.body.ok).toBeFalse();
-    expect(respuesta.body.mensaje).toBeDefined();
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body.nick).toBe(-1);
   });
 
   it('permite comprobar si un usuario está activo', async () => {
@@ -70,25 +68,25 @@ describe('API REST de usuarios', () => {
 
     const respuestaActivo = await request(app).get('/usuarioActivo/alice');
     expect(respuestaActivo.status).toBe(200);
-    expect(respuestaActivo.body.activo).toBeTrue();
+    expect(respuestaActivo.body).toEqual({ nick: 'alice', activo: true });
 
     const respuestaInactivo = await request(app).get('/usuarioActivo/bob');
     expect(respuestaInactivo.status).toBe(200);
-    expect(respuestaInactivo.body.activo).toBeFalse();
+    expect(respuestaInactivo.body).toEqual({ nick: 'bob', activo: false });
   });
 
-  it('elimina usuarios mediante DELETE', async () => {
+  it('elimina usuarios mediante GET', async () => {
     await request(app).get('/agregarUsuario/alice');
 
-    const respuestaEliminar = await request(app).delete('/eliminarUsuario/alice');
+    const respuestaEliminar = await request(app).get('/eliminarUsuario/alice');
     expect(respuestaEliminar.status).toBe(200);
-    expect(respuestaEliminar.body.ok).toBeTrue();
+    expect(respuestaEliminar.body.nick).toBe('alice');
 
     const respuestaNumero = await request(app).get('/numeroUsuarios');
-    expect(respuestaNumero.body.total).toBe(0);
+    expect(respuestaNumero.body.num).toBe(0);
 
-    const respuestaEliminarInexistente = await request(app).delete('/eliminarUsuario/alice');
-    expect(respuestaEliminarInexistente.status).toBe(404);
-    expect(respuestaEliminarInexistente.body.ok).toBeFalse();
+    const respuestaEliminarInexistente = await request(app).get('/eliminarUsuario/alice');
+    expect(respuestaEliminarInexistente.status).toBe(200);
+    expect(respuestaEliminarInexistente.body.nick).toBe(-1);
   });
 });

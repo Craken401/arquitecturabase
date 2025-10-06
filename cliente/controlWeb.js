@@ -118,7 +118,7 @@
 
         try {
           const respuesta = await ClienteRest.agregarUsuario(nick);
-          this.mostrarAlerta('success', `Usuario "${respuesta.usuario.nick}" agregado correctamente.`);
+          this.mostrarAlerta('success', `Usuario "${respuesta.nick}" agregado correctamente.`);
           input.value = '';
           await this.actualizarPanelUsuarios();
         } catch (error) {
@@ -252,15 +252,15 @@
 
     async actualizarPanelUsuarios() {
       try {
-        const listado = await ClienteRest.obtenerUsuarios();
-        this.pintarUsuarios(listado.usuarios || []);
+        const usuarios = await ClienteRest.obtenerUsuarios();
+        this.pintarUsuarios(usuarios);
       } catch (error) {
         this.mostrarAlerta('danger', error.message);
       }
 
       try {
         const total = await ClienteRest.numeroUsuarios();
-        const cantidad = Number(total.total ?? total.numero ?? 0);
+        const cantidad = Number(total.num ?? 0);
         this.badgeTotal.textContent = cantidad;
         this.indicadorTotal.textContent = cantidad;
       } catch (error) {

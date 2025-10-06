@@ -12,7 +12,8 @@ Proyecto base de la asignatura Procesos de Ingeniería del Software. Incluye un 
 ```bash
 npm install      # Instala dependencias
 npm start        # Inicia el servidor Express (http://localhost:3000 por defecto)
-npm test         # Ejecuta la suite de pruebas Jasmine
+npm test         # Ejecuta la suite de pruebas Jasmine (configuración multiplataforma)
+npm run testW    # Alternativa Windows equivalente al paso del guion
 ```
 
 ## Estructura principal
@@ -20,7 +21,11 @@ npm test         # Ejecuta la suite de pruebas Jasmine
 - `index.js`: servidor Express y rutas REST.
 - `cliente/`: activos estáticos del frontend (modelo, cliente REST y capa de control web).
 - `spec/`: pruebas unitarias y de integración Jasmine.
-- `pruebas-arquitecturabase/`: proyecto legado de pruebas unitarias del modelo (bloque 2).
+- `pruebas-arquitecturabase/`: proyecto standalone de Jasmine (bloque 2) con:
+	- `lib/jasmine-5.1.1/`: librerías copiadas desde el paquete standalone.
+	- `src/modelo.js`: copia del modelo ligero de cliente.
+	- `spec/modeloSpec.js`: especificaciones Jasmine ejecutables vía `SpecRunner.html`.
+	- `SpecRunner.html`: cargador HTML para la ejecución manual en navegador.
 
 ## Cliente web
 
@@ -31,6 +36,23 @@ El cliente se sirve automáticamente desde `npm start`. Accede a `http://localho
 - Consultar si un usuario está activo y revisar el total global en "Consultas rápidas".
 
 La capa de acceso REST (`cliente/clienteRest.js`) utiliza jQuery para consumir el backend y `cliente/controlWeb.js` renderiza los componentes con vanilla JS + Bootstrap 4.
+
+## Contratos REST (según guion)
+
+El backend expone respuesta JSON minimalistas, alineadas con el guion del sprint:
+
+- `GET /agregarUsuario/:nick` → `{ "nick": "pepe" }` si se registra o `{ "nick": -1 }` si el nick está en uso o es inválido.
+- `GET /obtenerUsuarios` → Diccionario de usuarios, por ejemplo `{ "pepe": {"nick": "pepe"} }`.
+- `GET /usuarioActivo/:nick` → `{ "nick": "pepe", "activo": true|false }`.
+- `GET /numeroUsuarios` → `{ "num": 3 }`.
+- `GET /eliminarUsuario/:nick` → `{ "nick": "pepe" }` cuando se elimina o `{ "nick": -1 }` si no existía.
+
+- `GET /eliminarUsuario/:nick` → `{ "nick": "pepe" }` cuando se elimina o `{ "nick": -1 }` si no existía.
+
+## Pruebas según la guía
+
+- **Bloque 2**: abre `pruebas-arquitecturabase/SpecRunner.html` en el navegador para lanzar las specs de cliente.
+- **Bloques 2-4**: ejecuta `npm test` (o `npm run testW` en PowerShell) para correr las specs de backend ubicadas en `spec/`.
 
 ## Despliegue en Cloud Run (Bloque 7)
 
