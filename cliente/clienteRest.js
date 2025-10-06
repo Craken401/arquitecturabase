@@ -92,29 +92,22 @@
     },
     eliminarUsuario(nick) {
       const clave = typeof nick === 'string' ? nick.trim() : '';
-      const destino = `/eliminarUsuario/${encodeURIComponent(clave)}`;
 
-      return new Promise((resolve, reject) => {
-        $.ajax({
-          method: 'DELETE',
-          url: `${BASE_URL}${destino}`,
-          dataType: 'json',
-          success(data) {
-            const ok = Boolean(data && data.ok);
-            if (!ok) {
-              reject(new Error(`No existe un usuario con nick "${clave}".`));
-              return;
-            }
-            log(`Usuario ${clave} eliminado del sistema`);
-            resolve({ ok: true, nick: clave });
-          },
-          error(xhr, textStatus, errorThrown) {
-            log(`Status: ${textStatus}`);
-            log(`Error: ${errorThrown}`);
-            reject(new Error(errorThrown || textStatus));
-          },
-          contentType: 'application/json',
-        });
+      if (!clave) {
+        return Promise.reject(new Error('Indica un nick válido para eliminar.'));
+      }
+
+      const destino = `/eliminarUsuario/${encodeURIComponent(clave)}`;
+      return request({ method: 'DELETE', url: destino }).then((data) => {
+        const ok = Boolean(data && data.ok);
+
+        if (!ok) {
+          log(`No se encontró el usuario ${clave} para eliminar.`);
+          return { ok: false };
+        }
+
+        log(`Usuario ${clave} eliminado del sistema`);
+        return { ok: true };
       });
     },
   };

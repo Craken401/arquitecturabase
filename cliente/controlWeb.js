@@ -135,9 +135,13 @@
 
         try {
           const respuesta = await ClienteRest.eliminarUsuario(nick);
-          this.mostrarAlerta('info', `Usuario "${respuesta.nick}" eliminado del sistema.`);
-          input.value = '';
-          await this.actualizarPanelUsuarios();
+          if (respuesta.ok) {
+            this.mostrarAlerta('info', `Usuario "${nick}" eliminado del sistema.`);
+            input.value = '';
+            await this.actualizarPanelUsuarios();
+          } else {
+            this.mostrarAlerta('warning', `No existe un usuario con nick "${nick}".`);
+          }
         } catch (error) {
           this.mostrarAlerta('danger', error.message);
         }
@@ -294,9 +298,13 @@
 
         btnEliminar.addEventListener('click', async () => {
           try {
-            await ClienteRest.eliminarUsuario(nick);
-            this.mostrarAlerta('info', `Usuario "${nick}" eliminado.`);
-            await this.actualizarPanelUsuarios();
+            const respuesta = await ClienteRest.eliminarUsuario(nick);
+            if (respuesta.ok) {
+              this.mostrarAlerta('info', `Usuario "${nick}" eliminado.`);
+              await this.actualizarPanelUsuarios();
+            } else {
+              this.mostrarAlerta('warning', `No existe un usuario con nick "${nick}".`);
+            }
           } catch (error) {
             this.mostrarAlerta('danger', error.message);
           }

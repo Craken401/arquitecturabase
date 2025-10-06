@@ -43,11 +43,9 @@ El backend expone respuesta JSON minimalistas, alineadas con el guion del sprint
 
 - `GET /agregarUsuario/:nick` → `{ "nick": "pepe" }` si se registra o `{ "nick": -1 }` si el nick está en uso o es inválido.
 - `GET /obtenerUsuarios` → Diccionario de usuarios, por ejemplo `{ "pepe": {"nick": "pepe"} }`.
-- `GET /usuarioActivo/:nick` → `{ "nick": "pepe", "activo": true|false }`.
+- `GET /usuarioActivo/:nick` → `{ "activo": true|false }`.
 - `GET /numeroUsuarios` → `{ "num": 3 }`.
-- `GET /eliminarUsuario/:nick` → `{ "nick": "pepe" }` cuando se elimina o `{ "nick": -1 }` si no existía.
-
-- `GET /eliminarUsuario/:nick` → `{ "nick": "pepe" }` cuando se elimina o `{ "nick": -1 }` si no existía.
+- `DELETE /eliminarUsuario/:nick` → `{ "ok": true|false }`.
 
 ## Pruebas según la guía
 
