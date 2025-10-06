@@ -81,23 +81,40 @@
       });
     },
     usuarioActivo(nick) {
-      const destino = `/usuarioActivo/${encodeURIComponent(nick)}`;
-      return request({ url: destino }).then((data) => ({
-        nick: data ? data.nick : nick,
-        activo: Boolean(data && data.activo),
-      })).then((datos) => {
-        log(`Usuario ${datos.nick} está ${datos.activo ? 'activo' : 'inactivo'}`);
-        return datos;
+      const clave = typeof nick === 'string' ? nick.trim() : '';
+      const destino = `/usuarioActivo/${encodeURIComponent(clave)}`;
+      return request({ url: destino }).then((data) => {
+        const activo = Boolean(data && data.activo);
+        const respuesta = { nick: clave, activo };
+        log(`Usuario ${respuesta.nick} está ${respuesta.activo ? 'activo' : 'inactivo'}`);
+        return respuesta;
       });
     },
     eliminarUsuario(nick) {
-      const destino = `/eliminarUsuario/${encodeURIComponent(nick)}`;
-      return request({ url: destino }).then((data) => {
-        if (!data || data.nick === -1) {
-          throw new Error(`No existe un usuario con nick "${nick}".`);
-        }
-        log(`Usuario ${data.nick} eliminado del sistema`);
-        return data;
+      const clave = typeof nick === 'string' ? nick.trim() : '';
+      const destino = `/eliminarUsuario/${encodeURIComponent(clave)}`;
+
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          method: 'DELETE',
+          url: `${BASE_URL}${destino}`,
+          dataType: 'json',
+          success(data) {
+            const ok = Boolean(data && data.ok);
+            if (!ok) {
+              reject(new Error(`No existe un usuario con nick "${clave}".`));
+              return;
+            }
+            log(`Usuario ${clave} eliminado del sistema`);
+            resolve({ ok: true, nick: clave });
+          },
+          error(xhr, textStatus, errorThrown) {
+            log(`Status: ${textStatus}`);
+            log(`Error: ${errorThrown}`);
+            reject(new Error(errorThrown || textStatus));
+          },
+          contentType: 'application/json',
+        });
       });
     },
   };

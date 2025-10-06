@@ -9,45 +9,36 @@ function Usuario(nick) {
 function Sistema() {
   this.usuarios = {};
 
-  this.agregarUsuario = function (nick) {
+  this.agregarUsuario = (nick) => {
     const clave = normalizarNick(nick);
-    const respuesta = { nick: -1 };
 
-    if (clave && !Object.prototype.hasOwnProperty.call(this.usuarios, clave)) {
-      this.usuarios[clave] = new Usuario(clave);
-      respuesta.nick = clave;
+    if (!clave || Object.prototype.hasOwnProperty.call(this.usuarios, clave)) {
+      return { nick: -1 };
     }
 
-    return respuesta;
+    this.usuarios[clave] = new Usuario(clave);
+    return { nick: clave };
   };
 
-  this.obtenerUsuarios = function () {
-    return this.usuarios;
-  };
+  this.obtenerUsuarios = () => this.usuarios;
 
-  this.usuarioActivo = function (nick) {
+  this.usuarioActivo = (nick) => {
     const clave = normalizarNick(nick);
-    return {
-      nick: clave,
-      activo: Boolean(clave && Object.prototype.hasOwnProperty.call(this.usuarios, clave)),
-    };
+    return Boolean(clave && Object.prototype.hasOwnProperty.call(this.usuarios, clave));
   };
 
-  this.eliminarUsuario = function (nick) {
+  this.eliminarUsuario = (nick) => {
     const clave = normalizarNick(nick);
-    const respuesta = { nick: -1 };
 
-    if (clave && Object.prototype.hasOwnProperty.call(this.usuarios, clave)) {
-      delete this.usuarios[clave];
-      respuesta.nick = clave;
+    if (!clave || !Object.prototype.hasOwnProperty.call(this.usuarios, clave)) {
+      return { ok: false };
     }
 
-    return respuesta;
+    delete this.usuarios[clave];
+    return { ok: true };
   };
 
-  this.numeroUsuarios = function () {
-    return { num: Object.keys(this.usuarios).length };
-  };
+  this.numeroUsuarios = () => Object.keys(this.usuarios).length;
 }
 
 module.exports.Sistema = Sistema;

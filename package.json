@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-  "test": "npx jasmine --config=spec/support/jasmine.json",
-    "testW": "node_modules\\.bin\\jasmine --config=spec/support/jasmine.json"
+    "test": "jasmine",
+    "testW": "jasmine --watch"
   },
   "repository": {
     "type": "git",

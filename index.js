@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const sistema = new Sistema();
+app.use(express.json());
 app.use(express.static(__dirname + '/'));
 
 app.get('/hola', (_req, res) => {
@@ -14,7 +15,8 @@ app.get('/hola', (_req, res) => {
 });
 
 app.get('/agregarUsuario/:nick', (req, res) => {
-	const resultado = sistema.agregarUsuario(req.params.nick);
+	const nick = String((req.params.nick || '').trim());
+	const resultado = sistema.agregarUsuario(nick);
 	res.json(resultado);
 });
 
@@ -23,17 +25,17 @@ app.get('/obtenerUsuarios', (_req, res) => {
 });
 
 app.get('/usuarioActivo/:nick', (req, res) => {
-	const resultado = sistema.usuarioActivo(req.params.nick);
-	res.json(resultado);
+	const nick = String((req.params.nick || '').trim());
+	res.json({ activo: sistema.usuarioActivo(nick) });
 });
 
 app.get('/numeroUsuarios', (_req, res) => {
-	res.json(sistema.numeroUsuarios());
+	res.json({ num: sistema.numeroUsuarios() });
 });
 
-app.get('/eliminarUsuario/:nick', (req, res) => {
-	const resultado = sistema.eliminarUsuario(req.params.nick);
-	res.json(resultado);
+app.delete('/eliminarUsuario/:nick', (req, res) => {
+	const nick = String((req.params.nick || '').trim());
+	res.json(sistema.eliminarUsuario(nick));
 });
 
 app.get('/', (_req, res) => {

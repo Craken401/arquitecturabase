@@ -88,3 +88,18 @@ git push origin main
 ```
 
 Repite el ciclo tras completar cada bloque para mantener un historial claro y trazable.
+
+## Verificación API
+
+```bash
+# agregar
+curl -s http://localhost:3000/agregarUsuario/Craken
+# activo?
+curl -s http://localhost:3000/usuarioActivo/Craken
+# total
+curl -s http://localhost:3000/numeroUsuarios
+# lista
+curl -s http://localhost:3000/obtenerUsuarios
+# eliminar (DELETE)
+curl -s -X DELETE http://localhost:3000/eliminarUsuario/Craken
+```
