@@ -52,27 +52,54 @@ El backend expone respuesta JSON minimalistas, alineadas con el guion del sprint
 - **Bloque 2**: abre `pruebas-arquitecturabase/SpecRunner.html` en el navegador para lanzar las specs de cliente.
 - **Bloques 2-4**: ejecuta `npm test` (o `npm run testW` en PowerShell) para correr las specs de backend ubicadas en `spec/`.
 
-## Despliegue en Cloud Run (Bloque 7)
+## Despliegue en Google Cloud Run
 
-1. **Instala y autentica** Google Cloud CLI:
-	```bash
-	gcloud auth login
-	gcloud config set project <ID_DEL_PROYECTO>
-	gcloud services enable run.googleapis.com artifactregistry.googleapis.com
-	```
-2. **Despliega** la aplicación (desde la carpeta raíz del repo):
-	```bash
-	gcloud run deploy arquitecturabase \
-	  --source . \
-	  --region europe-west1 \
-	  --allow-unauthenticated
-	```
-3. **Verifica** la URL que devuelve el comando (por ejemplo, abriéndola en el navegador o ejecutando):
-	```bash
-	curl https://<URL_GENERADA>/obtenerUsuarios
-	```
+**Proyecto:** `arquitecturabase-474410` (ID) · **Región:** `europe-west1` · **Servicio:** `arquitecturabase`
 
-> Nota: la ejecución de `gcloud run deploy` debe realizarse en tu entorno local con la CLI instalada; este repositorio solo prepara la aplicación para que el comando funcione con `npm start` como punto de entrada.
+### Requisitos (primera vez en este PC)
+1. Instalar Google Cloud SDK (Windows):
+	```powershell
+	winget install Google.Cloud.Sdk
+
+
+Iniciar sesión y fijar proyecto/región:
+
+gcloud auth login
+gcloud config set project arquitecturabase-474410
+gcloud config set run/region europe-west1
+
+Despliegue (cada vez)
+
+Desde la raíz del repo:
+
+gcloud run deploy arquitecturabase --source . --region europe-west1 --allow-unauthenticated
+
+
+Al finalizar, Cloud Run mostrará una Service URL pública (ej.: https://arquitecturabase-XXXXXXXX.europe-west1.run.app).
+
+Verificación rápida
+curl -s https://<TU_URL>/agregarUsuario/Craken
+curl -s https://<TU_URL>/numeroUsuarios
+curl -s https://<TU_URL>/obtenerUsuarios
+curl -s -X DELETE https://<TU_URL>/eliminarUsuario/Craken
+
+Costes (recomendación)
+
+Cloud Run no cobra en reposo si las instancias mínimas son 0:
+
+gcloud run services update arquitecturabase --region europe-west1 --min-instances=0 --max-instances=1 --memory=512Mi --cpu=1
+
+
+Para detener completamente el servicio:
+
+gcloud run services delete arquitecturabase --region europe-west1
+
+Alternativa sin instalar nada (Cloud Shell en el navegador)
+gcloud config set project arquitecturabase-474410
+gcloud config set run/region europe-west1
+git clone https://github.com/Craken401/arquitecturabase
+cd arquitecturabase
+gcloud run deploy arquitecturabase --source . --allow-unauthenticated
 
 ## Flujo de trabajo con Git
 

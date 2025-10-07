@@ -8,7 +8,16 @@ const PORT = process.env.PORT || 3000;
 
 const sistema = new Sistema();
 app.use(express.json());
-app.use(express.static(__dirname + '/'));
+
+const CLIENT_DIR = path.join(__dirname, 'cliente');
+const CLIENT_DIST_DIR = path.join(CLIENT_DIR, 'dist');
+
+if (fs.existsSync(CLIENT_DIST_DIR)) {
+	app.use(express.static(CLIENT_DIST_DIR));
+}
+
+app.use('/cliente', express.static(CLIENT_DIR));
+app.use(express.static(__dirname));
 
 app.get('/hola', (_req, res) => {
 	res.json({ mensaje: 'Hola Mundo' });
@@ -39,15 +48,16 @@ app.delete('/eliminarUsuario/:nick', (req, res) => {
 });
 
 app.get('/', (_req, res) => {
-	const contenido = fs.readFileSync(path.join(__dirname, 'cliente', 'index.html'));
-	res.setHeader('Content-type', 'text/html');
-	res.send(contenido);
+	const baseDir = fs.existsSync(path.join(CLIENT_DIST_DIR, 'index.html'))
+		? CLIENT_DIST_DIR
+		: CLIENT_DIR;
+	res.sendFile(path.join(baseDir, 'index.html'));
 });
 
 if (require.main === module) {
 	app.listen(PORT, () => {
 		// eslint-disable-next-line no-console
-		console.log(`Servidor escuchando en http://localhost:${PORT}`);
+		console.log(`Servidor en ${PORT}`);
 	});
 }
 

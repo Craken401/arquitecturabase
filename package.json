@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "build:cliente": "vite build --config cliente/vite.config.ts",
+    "serve": "node index.js",
+    "deploy:cloudrun": "gcloud run deploy arquitecturabase --source . --region europe-west1 --allow-unauthenticated",
     "test": "jasmine",
     "testW": "jasmine --watch"
   },

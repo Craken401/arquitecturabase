@@ -51,3 +51,6 @@ For client-side specs (manual): open `pruebas-arquitecturabase/SpecRunner.html` 
 - If you add persistent storage (DB), update tests and provide a reproducible local dev/test strategy (in-memory fallback or test DB docker compose).
 
 If anything here is unclear or you want me to expand a section (examples, more file references, or add quickfix PRs), tell me which part to iterate on.
+
+Para actualizar el proyecto en la nube:
+gcloud run deploy arquitecturabase --source . --region europe-west1
